@@ -7,7 +7,7 @@ export const formularios = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const botonesNavegacion = document.querySelectorAll(".nav-button");
+  const botonesNavegacion = document.querySelectorAll("#nav-button");
   const botonCalcularResultado = document.querySelector("calcular" || null);
 
   let seccion = null;

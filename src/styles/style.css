@@ -1,22 +1,60 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+/* body */
+.containerbody{
+    height: 100vh;
+    width: 100vw;
+    background-color: #000000;
+    color: #ffffff;
 }
-nav {
-    background-color: #333;
+/* forms */
+.tablafc{
+    display: flex;
+    justify-content: space-around;
+    
+}
+.formsumares{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.formsumares input{
+    width: 60px;
+}
+
+
+
+/* modal */
+.title{
     padding: 10px;
+    text-align: center;
+    background-color: #000000;
 }
-.nav-button {
-    background-color: #555;
-    color: white;
+
+.themodal{
     border: none;
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 18px;
-    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    background-color: #241e1e;
+    color: #ffffff;
+    border-radius: 10px;
 }
-.nav-button:hover {
-    background-color: #777;
+
+.titulomodal{
+   width: 100%;
+   display: flex;
+   justify-content: space-between;
+   padding: 10px;
+
+}	
+
+.celdas{
+    width: 80px;
+}
+
+.footer-modal{
+    display: flex;
+    justify-content: end;
+    padding: 10px;
+    gap: 10px;
 }
