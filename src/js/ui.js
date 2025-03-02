@@ -39,23 +39,28 @@ export function cargarSeccion(seccion) {
         contenido.innerHTML = `
         <section>
 
-            <h2>Multiplicar por Escalar</h2>
+            
 
-            <form id="formMultiplicarEscalar">
+            <form id="formMultiplicarEscalar" class="formescalar">
+                <h2 class="text-center">Multiplicar por Escalar</h2>
+                <span class="text-center">Valores de la matriz</span>
+                <div class="tablafc">
+                    <div>
+                    <label class="form-label">Escalar (k):</label>
+                    <input class="form-control" type="number" inputmode="numeric" id="escalar" min="1" max="99" value="1">
+                    </div>
 
-                <label>Escalar (k):</label>
-                <input type="number" inputmode="numeric" id="escalar" min="1" max="99" value="1">
+                    <div>
+                    <label class="form-label">Filas:</label>
+                    <input class="form-control" type="number" inputmode="numeric" id="filas" min="1" max="99" value="1">
+                    </div>
 
-                <span>Dimensión de la matriz:</span>
-                
-                <label>Filas:</label>
-                <input type="number" inputmode="numeric" id="filas" min="1" max="99" value="1">
-                
-                <label>Columnas:</label>
-                <input type="number" inputmode="numeric" id="columnas" min="1" max="99" value="1">
-
-                <button type="submit" id="generarBtn">Establecer Matriz</button>
-
+                    <div>
+                    <label class="form-label">Columnas:</label>
+                    <input class="form-control" type="number" inputmode="numeric" id="columnas" min="1" max="99" value="1">
+                    </div>
+                </div>
+                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matriz</button>
             </form>
 
         </section>
@@ -63,27 +68,23 @@ export function cargarSeccion(seccion) {
     } else if (seccion === "matriz-transpuesta") {
         contenido.innerHTML = `
         <section>
-
-            <h2>Matriz Transpuesta</h2>
-
-            <form id="formMatrizTranspuesta">
-
+            <form id="formMatrizTranspuesta" class="formtrans">
+                <h2>Matriz Transpuesta</h2>
                 <span>Dimensión de la matriz:</span>
                 <div class="tablafc">
                     <div>
-                        <label>Filas:</label>
-                        <input type="number" inputmode="numeric" id="filas" min="1" max="99" value="1">
+                        <label class="form-label">Filas:</label>
+                        <input class="form-control" type="number" inputmode="numeric" id="filas" min="1" max="99" value="1">
                     </div>
                     <div>
-                        <label>Columnas:</label>
-                        <input type="number" inputmode="numeric" id="columnas" min="1" max="99" value="1">
+                        <label class="form-label">Columnas:</label>
+                        <input class="form-control" type="number" inputmode="numeric" id="columnas" min="1" max="99" value="1">
                     </div>
                 </div>
                 
-                <button type="submit" id="generarBtn">Establecer Matricez</button>
+                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matrices</button>
 
             </form>
-
         </section>
     `;
     }

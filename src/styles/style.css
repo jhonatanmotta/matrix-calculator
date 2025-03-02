@@ -21,7 +21,26 @@
 .formsumares input{
     width: 60px;
 }
-
+.formescalar{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.formescalar input{
+    width: 60px;
+}
+.formtrans{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.formtrans input{
+    width: 60px;
+}
 
 
 /* modal */
