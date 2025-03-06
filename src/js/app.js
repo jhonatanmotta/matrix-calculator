@@ -1,4 +1,8 @@
-import { cargarSeccion, establecerContenidoMatriz, calcularResultado } from "./ui.js";
+import {
+  cargarSeccion,
+  establecerContenidoMatriz,
+  calcularResultado,
+} from "./ui.js";
 
 export const formularios = {
   "multiplicar-escalar": "#formMultiplicarEscalar",
@@ -7,9 +11,7 @@ export const formularios = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const botonesNavegacion = document.querySelectorAll("#nav-button");
-  const botonCalcularResultado = document.querySelector("calcular" || null);
-
+  const botonesNavegacion = document.querySelectorAll(".nav-button");
   let seccion = null;
 
   botonesNavegacion.forEach((boton) => {
@@ -21,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (formulario) {
         formulario.addEventListener("submit", (event) => {
-
           event.preventDefault();
 
           const filas = parseInt(document.querySelector("#filas").value);
@@ -40,11 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  if (botonCalcularResultado) {
-    botonCalcularResultado.addEventListener("click"),
-      () => {
-        calcularResultado();
-      };
-  }
+  document.addEventListener("click", (event) => {
+    if (event.target && event.target.id === "calcular") {
+      calcularResultado();
+    }
+  });
   
 });
