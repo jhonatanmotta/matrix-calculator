@@ -67,17 +67,14 @@
     border: none;
 }
 
-.titulomodal{
+.titulo-modal{
    width: 100%;
    display: flex;
    justify-content: space-between;
-   padding: 10px;
+   padding: 5px;
+   gap: 10px;
 }	
   
-
-.celdas{
-    width: 80px;
-}
 
 .footer-modal{
     display: flex;
@@ -90,4 +87,41 @@
     color: #ffffff;
 }
 
+.titulo{
+    width: max-content;
+}
+.cerrar-modal{
+    width: max-content;
+}
 
+
+
+/* overflow & flex matrices */
+.tableover{
+    overflow: auto;
+    max-height: 500px;
+    max-width: 500px;
+}
+.body-modal{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 50px;
+}
+
+.overf1 {
+    overflow: auto;
+    max-height: 500px;
+    max-width: 500px;
+}
+.celda{
+    width: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+}
+.overf2 {
+    overflow: auto;
+    max-height: 500px;
+    max-width: 500px;
+}

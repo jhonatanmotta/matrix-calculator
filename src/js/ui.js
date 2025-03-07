@@ -94,7 +94,16 @@ export function cargarSeccion(seccion) {
 export function establecerContenidoMatriz(datos) {
 
   let contenido = document.createElement("div"); // Un contenedor para las matrices
+  let matit1 = document.createElement("div"); // Un contenedor para las matriz y titulo 1
+  let matit2 = document.createElement("div"); // Un contenedor para las matriz y titulo 2
+  let overf1 = document.createElement("div"); // Un contenedor para las matriz 1
+  let overf2 = document.createElement("div"); // Un contenedor para las matriz 2
+
   contenido.classList.add("body-modal");
+  matit1.classList.add("matit1");
+  matit2.classList.add("matit2");
+  overf1.classList.add("overf1");
+  overf2.classList.add("overf2");
   contenido.dataset.operacion = datos.operacion;  
   
   if (datos.operacion === "suma" || datos.operacion === "resta") {
@@ -106,22 +115,29 @@ export function establecerContenidoMatriz(datos) {
     tituloB.classList.add("text-center");
     tituloB.textContent = "Matriz B";
 
-    contenido.appendChild(tituloA);
-    contenido.appendChild(
+    matit1.appendChild(tituloA);
+    overf1.appendChild(
       generarMatriz(datos.filas, datos.columnas, "matrizA")
     );
-    contenido.appendChild(tituloB);
-    contenido.appendChild(
+    matit2.appendChild(tituloB);
+    overf2.appendChild(
       generarMatriz(datos.filas, datos.columnas, "matrizB")
     );
+    matit1.appendChild(overf1);
+    matit2.appendChild(overf2);
+
+    contenido.appendChild(matit1);
+    contenido.appendChild(matit2);
   } else if (
     datos.operacion === "multiplicar-escalar" ||
     datos.operacion === "matriz-transpuesta"
   ) {
     let titulo = document.createElement("h3");
     titulo.textContent = "Matriz";
-    contenido.appendChild(titulo);
-    contenido.appendChild(generarMatriz(datos.filas, datos.columnas, "matriz"));
+    matit1.appendChild(titulo);
+    overf1.appendChild(generarMatriz(datos.filas, datos.columnas, "matriz"));
+    matit1.appendChild(overf1);
+    contenido.appendChild(matit1);
   }
 
   mostrarCuadroDialogo(contenido, datos);
@@ -142,7 +158,7 @@ function generarMatriz(filas, columnas, id) {
 
       let input = document.createElement("input");
       input.type = "text";
-      input.classList.add("celda", "form-control");
+      input.classList.add("celda");
 
       input.addEventListener("input", () => validarInput(input));
 
@@ -206,10 +222,14 @@ function mostrarCuadroDialogo(matriz, datos) {
   const tituloModal = document.createElement("div");
   tituloModal.className = "titulo-modal";
   tituloModal.innerHTML = `
+    <div class="titulo">
         <h3>${
           titulos[datos.operacion]
         }</h3>
+    </div>
+    <div class="cerrar-modal">
         <button class="closemodal btn btn-danger">x</button>
+    </div>
     `;
 
   modal.appendChild(tituloModal);
@@ -351,7 +371,7 @@ function obtenerMatrizDesdeDOM(id) {
 function mostrarResultado(titulo, matriz) {
   if (!matriz) return "";
 
-  let tablaHTML = `<h3>${titulo}:</h3><table class='table table-bordered'><tbody>`;
+  let tablaHTML = `<div><h3>${titulo}:</h3> <div class="tableover"><table class='table table-bordered tableover'><tbody>`;
 
   matriz.forEach((fila) => {
     tablaHTML += "<tr>";
@@ -361,7 +381,7 @@ function mostrarResultado(titulo, matriz) {
     tablaHTML += "</tr>";
   });
 
-  tablaHTML += "</tbody></table>";
+  tablaHTML += "</tbody></table></div></div>";
 
   return tablaHTML;
 }
