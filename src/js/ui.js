@@ -3,6 +3,8 @@ import {
   restarMatrices,
   multiplicarEscalar,
   matrizTranspuesta,
+  parseFraccion,
+  decimalAFraccion
 } from "./operations.js";
 
 export function cargarSeccion(seccion) {
@@ -267,6 +269,7 @@ function mostrarCuadroDialogo(matriz, datos) {
   // Evento para eliminar el modal cuando se cierre
   modal.addEventListener("close", () => modal.remove());
 }
+
 export function calcularResultado() {
   // Detectar qué operación se está realizando
   const operacion = document
@@ -312,38 +315,6 @@ export function calcularResultado() {
   document.querySelector("#calcular").remove();
 }
 
-// export function calcularResultado() {
-//   // Detectar qué operación se está realizando
-//   const operacion = document
-//     .querySelector(".body-modal")
-//     .getAttribute("data-operacion");
- 
-//   // Obtener los datos necesarios para la operación
-//   let resultado;
-
-//   if (operacion === "suma") {
-//     let matrizA = obtenerMatrizDesdeDOM("matrizA");
-//     let matrizB = obtenerMatrizDesdeDOM("matrizB");
-//     resultado = sumarMatrices(matrizA, matrizB);
-//     console.log(resultado);
-//   } else if (operacion === "resta") {
-//     let matrizA = obtenerMatrizDesdeDOM("matrizA");
-//     let matrizB = obtenerMatrizDesdeDOM("matrizB");
-//     resultado = restarMatrices(matrizA, matrizB);
-//   } else if (operacion === "multiplicar-escalar") {
-//     const escalar = parseFloat(document.querySelector("#escalar").value)
-//     let matriz = obtenerMatrizDesdeDOM("matriz");
-//     resultado = multiplicarEscalar(matriz, escalar);
-//   } else if (operacion === "matriz-transpuesta") {
-//     let matriz = obtenerMatrizDesdeDOM("matriz");
-//     resultado = matrizTranspuesta(matriz);
-//   }
-
-//   // Mostrar el resultado en el modal
-//   mostrarResultadoEnModal(resultado);
-// }
-
-
 
 // Función para obtener una matriz desde el DOM
 function obtenerMatrizDesdeDOM(id) {
@@ -358,13 +329,15 @@ function obtenerMatrizDesdeDOM(id) {
     const celdas = fila.querySelectorAll("input");
 
     celdas.forEach((celda) => {
-      filaArray.push(parseFloat(celda.value) || 0); // Convertir a número, si está vacío usa 0
+      filaArray.push(parseFraccion(celda.value) || 0); // Convertir a número, si está vacío usa 0
     });
 
     matriz.push(filaArray);
   });
 
+  console.log(matriz);
   return matriz;
+  
 }
 
 // Función para mostrar el resultado en el modal
@@ -376,7 +349,8 @@ function mostrarResultado(titulo, matriz) {
   matriz.forEach((fila) => {
     tablaHTML += "<tr>";
     fila.forEach((valor) => {
-      tablaHTML += `<td>${valor}</td>`;
+      let resultadoFinal = Number.isInteger(valor) ? valor : decimalAFraccion(valor);
+      tablaHTML += `<td>${resultadoFinal}</td>`;
     });
     tablaHTML += "</tr>";
   });
