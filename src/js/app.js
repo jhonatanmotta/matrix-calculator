@@ -5,9 +5,13 @@ import {
 } from "./ui.js";
 
 export const formularios = {
-  "multiplicar-escalar": "#formMultiplicarEscalar",
-  "sumar-restar": "#formSumarRestar",
-  "matriz-transpuesta": "#formMatrizTranspuesta",
+  "multiplicar-escalar": "#formMultiplicarEscalar", //ya está lista
+  "sumar-restar": "#formSumarRestar",//ya está lista
+  "matriz-transpuesta": "#formMatrizTranspuesta",//ya está lista
+  "multiplicar-matrices": "#formMultiplicarMatrices", 
+  "potencia": "#formPotencia",
+  "inversa": "#formInversa",
+  "determinante": "#formDeterminante",
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -25,14 +29,18 @@ document.addEventListener("DOMContentLoaded", () => {
         formulario.addEventListener("submit", (event) => {
           event.preventDefault();
 
-          const filas = parseInt(document.querySelector("#filas").value);
-          const columnas = parseInt(document.querySelector("#columnas").value);
-          let datos = { filas, columnas, operacion: seccion };
+          const filasA = parseInt(document.querySelector("#filasA").value);
+          const columnasA = parseInt(document.querySelector("#columnasA").value);
+          const filasB = parseInt(document.querySelector("#filasB")?.value || 0);
+          const columnasB = parseInt(document.querySelector("#columnasB")?.value || 0);          
+          let datos = { filasA, columnasA, filasB, columnasB, operacion: seccion};
 
           if (seccion === "sumar-restar") {
             datos.operacion = document.querySelector("#operacion").value;
           } else if (seccion === "multiplicar-escalar") {
             datos.escalar = parseInt(document.querySelector("#escalar").value);
+          } else if (seccion === "potencia") {
+            datos.grado = parseInt(document.querySelector("#grado").value);
           }
 
           establecerContenidoMatriz(datos);

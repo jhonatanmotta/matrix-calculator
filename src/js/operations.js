@@ -14,6 +14,70 @@ export function matrizTranspuesta(A) {
     return A[0].map((_, j) => A.map(fila => fila[j]));
 }
 
+export function multiplicarMatrices(A, B) {
+    return A.map((fila, i) => B[0].map((_, j) => fila.reduce((sum, val, k) => sum + val * B[k][j], 0)));
+}
+
+export function potenciaMatriz(A, n) {
+    if (n === 0) {
+        return A.map((fila, i) => fila.map((val, j) => (i === j ? 1 : 0))); // Matriz identidad
+    }
+    if (n === 1) {
+        return A;
+    }
+    let resultado = A;
+    for (let i = 2; i <= n; i++) {
+        resultado = multiplicarMatrices(resultado, A);
+    }
+    console.log(`Potencia ${n} de la matriz:`, resultado);
+    return resultado;
+}
+
+export function calcularDeterminante(matriz) {
+    const n = matriz.length;
+    if (n === 1) {
+        return matriz[0][0];
+    }
+    if (n === 2) {
+        return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0];
+    }
+    let det = 0;
+    for (let i = 0; i < n; i++) {
+        const submatriz = matriz.slice(1).map(fila => fila.filter((_, j) => j !== i));
+        det += ((i % 2 === 0 ? 1 : -1) * matriz[0][i] * calcularDeterminante(submatriz));
+    }
+    return det;
+}
+
+export function calcularInversa(matriz) {
+  const n = matriz.length;
+  
+  const det = calcularDeterminante(matriz);
+  if (det === 0) {
+    throw new Error("La matriz no es invertible (determinante cero).");
+  }
+
+  // Calcular la matriz de cofactores (adjunta sin transponer aún)
+  const cofactores = matriz.map((fila, i) =>
+    fila.map((_, j) => {
+      const submatriz = matriz
+        .filter((_, k) => k !== i)
+        .map(f => f.filter((_, l) => l !== j));
+      const cofactor = calcularDeterminante(submatriz);
+      return ((i + j) % 2 === 0 ? 1 : -1) * cofactor;
+    })
+  );
+
+  // Transponer la matriz de cofactores (adjunta)
+  const adjunta = matrizTranspuesta(cofactores);
+
+  // Dividir cada elemento de la adjunta por el determinante
+  const inversa = adjunta.map(fila => fila.map(valor => valor / det));
+
+  return inversa;
+}
+
+
 export function parseFraccion (valor) {
     if (valor.includes("/")) {
       let [num, den] = valor.split("/").map(Number);
@@ -22,101 +86,45 @@ export function parseFraccion (valor) {
     return parseFloat(valor); // Si no es fracción, devolver como número normal
 }
 
-export function decimalAFraccion(decimal) {
-  // Guardamos el signo y trabajamos con el valor absoluto
+export function decimalAFraccion(decimal) { 
   let signo = decimal < 0 ? -1 : 1;
   decimal = Math.abs(decimal);
 
-  // Usamos toPrecision(17) para aprovechar la precisión completa de los números en doble precisión
-  let str = decimal.toPrecision(17);
-  // Eliminamos ceros finales innecesarios en la parte fraccional
-  str = str.replace(/(\.\d*?[1-9])0+$/, "$1").replace(/\.0+$/, "");
-
-  // Si no hay parte decimal, es un entero
-  if (!str.includes(".")) {
-    return `${signo * parseInt(str, 10)}/1`;
+  if (Number.isInteger(decimal)) {
+    return `${signo * decimal}/1`;
   }
 
+  // Convertimos el decimal a una precisión fija
+  let str = decimal.toFixed(12); // Ajustar precisión ayuda a evitar errores de redondeo
   let [integerPart, fracPart] = str.split(".");
 
-  // Función para detectar un patrón repetitivo en la parte fraccional
-  function detectarRepeticion(s) {
-    let len = s.length;
-    // Se prueba para cada posición de inicio (m) y para cada longitud de bloque (r)
-    for (let m = 0; m < len; m++) {
-      for (let r = 1; r <= len - m; r++) {
-        let patron = s.substring(m, m + r);
-        let valido = true;
-        let fallos = 0;
-        // Desde la posición m hasta el final se debe repetir el patrón
-        for (let i = m; i < len; i++) {
-          let expected = patron[(i - m) % r];
-          if (s[i] !== expected) {
-            fallos++;
-            // Permitimos un fallo únicamente en la última posición (posible error de redondeo)
-            if (i < len - 1 || fallos > 1) {
-              valido = false;
-              break;
-            }
-          }
-        }
-        if (valido) {
-          return { nonRepeating: s.substring(0, m), repeating: patron };
-        }
-      }
-    }
-    return null;
+  // Casos básicos conocidos
+  let simples = { "5": "1/2", "25": "1/4", "75": "3/4", "33": "1/3", "666": "2/3" };
+  if (simples[fracPart]) {
+    let [num, den] = simples[fracPart].split("/").map(Number);
+    return `${signo * (integerPart * den + num)}/${den}`;
   }
 
-  let patrones = detectarRepeticion(fracPart);
+  // Algoritmo de fracción continua para casos generales
+  let tolerance = 1e-10;
+  let h1 = 1, h2 = 0, k1 = 0, k2 = 1;
+  let b = decimal;
+  let h, k;
 
-  if (patrones && patrones.repeating !== "") {
-    // Se ha detectado un patrón periódico en la parte decimal
-    let { nonRepeating, repeating } = patrones;
-    let m = nonRepeating.length;
-    let r = repeating.length;
+  while (true) {
+    let a = Math.floor(b);
+    h = a * h1 + h2;
+    k = a * k1 + k2;
 
-    // A: parte entera; B: parte no periódica de la parte decimal; C: bloque periódico
-    let A = parseInt(integerPart, 10);
-    let B = nonRepeating === "" ? 0 : parseInt(nonRepeating, 10);
-    let C = parseInt(repeating, 10);
-
-    // Denominador: 10^m * (10^r - 1)
-    let D = Math.pow(10, m) * (Math.pow(10, r) - 1);
-    // Numerador: A * D + [(B*10^r + C) - B]
-    let numerator = A * D + ((B * Math.pow(10, r) + C) - B);
-
-    // Simplificar la fracción con el máximo común divisor (MCD)
-    let gcd = (a, b) => (b ? gcd(b, a % b) : a);
-    let divisor = gcd(numerator, D);
-    numerator /= divisor;
-    D /= divisor;
-
-    return `${signo * numerator}/${D}`;
-  } else {
-    // Si no se detecta un patrón periódico, usamos el algoritmo de fracción continua
-    // que suele ser más robusto ante imprecisiones de coma flotante.
-    let tolerance = 1e-12;
-    let h1 = 1, h2 = 0;
-    let k1 = 0, k2 = 1;
-    let b = decimal;
-    let h, k;
-    while (true) {
-      let a = Math.floor(b);
-      h = a * h1 + h2;
-      k = a * k1 + k2;
-      if (Math.abs(decimal - h / k) < tolerance) {
-        let gcd = (a, b) => (b ? gcd(b, a % b) : a);
-        let divisor = gcd(h, k);
-        h /= divisor;
-        k /= divisor;
-        return `${signo * h}/${k}`;
-      }
-      h2 = h1;
-      h1 = h;
-      k2 = k1;
-      k1 = k;
-      b = 1 / (b - a);
+    if (Math.abs(decimal - h / k) < tolerance) {
+      let gcd = (a, b) => (b ? gcd(b, a % b) : a);
+      let divisor = gcd(h, k);
+      return `${signo * (h / divisor)}/${k / divisor}`;
     }
+
+    h2 = h1; h1 = h;
+    k2 = k1; k1 = k;
+    b = 1 / (b - a);
   }
 }
+
