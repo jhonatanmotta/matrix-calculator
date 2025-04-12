@@ -102,7 +102,7 @@ export function cargarSeccion(seccion) {
                     </div>
                 </div>
                 
-                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matrices</button>
+                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matriz</button>
 
             </form>
         </section>
@@ -111,7 +111,7 @@ export function cargarSeccion(seccion) {
     contenido.innerHTML = `
         <section>
 
-        <h2 class="text-center">Multiplicar Matrices</h2>
+        <h2 class="text-center">Multiplicación de Matrices</h2>
             <form id="formMultiplicarMatrices" class="formsumares">
                 <label class="text-center">Dimensión de la matricez A:</label>
                 <div class="tablafc">
@@ -169,7 +169,7 @@ export function cargarSeccion(seccion) {
                     <option value="4">4</option>
                 </select>
 
-                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matrices</button>
+                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matriz</button>
 
             </form>
 
@@ -193,7 +193,7 @@ export function cargarSeccion(seccion) {
                     </div>
                 </div>
 
-                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matrices</button>
+                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matriz</button>
 
             </form>
 
@@ -217,7 +217,7 @@ export function cargarSeccion(seccion) {
                     </div>
                 </div>
 
-                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matrices</button>
+                <button type="submit" id="generarBtn" class="btn btn-primary">Establecer Matriz</button>
 
             </form>
 
@@ -271,7 +271,7 @@ export function establecerContenidoMatriz(datos) {
     let titulo = document.createElement("h3");
     titulo.textContent = "Matriz";
     matit1.appendChild(titulo);
-    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matriz"));
+    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matrizA"));
     matit1.appendChild(overf1);
     contenido.appendChild(matit1);
   } else if (datos.operacion === "multiplicar-escalar") {
@@ -281,7 +281,7 @@ export function establecerContenidoMatriz(datos) {
     escalar.textContent = `Escalar: ${datos.escalar}`;
     matit1.appendChild(escalar);
     matit1.appendChild(titulo);
-    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matriz"));
+    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matrizA"));
     matit1.appendChild(overf1);
     contenido.appendChild(matit1);
   }
@@ -300,7 +300,6 @@ export function establecerContenidoMatriz(datos) {
       datos.operacion
     ))
     {
-      console.log("hola");
       
       mostrarCuadroDialogo(contenido, datos);
     }
@@ -445,7 +444,7 @@ function mostrarCuadroDialogo(matriz, datos) {
   modal.className = "themodal";
   modal.setAttribute("role", "dialog");
   modal.setAttribute("aria-modal", "true");
-
+  
   // Construcción del contenido del modal
   const tituloModal = document.createElement("div");
   tituloModal.className = "titulo-modal";
@@ -494,14 +493,13 @@ function mostrarCuadroDialogo(matriz, datos) {
   modal.addEventListener("close", () => modal.remove());
 }
 
-
 export function calcularResultado() {
   // Detectar qué operación se está realizando
   const operacion = document
     .querySelector(".body-modal")
     .getAttribute("data-operacion");
 
-  let matrizA, matrizB, escalar, resultado;
+  let matrizA, matrizB, escalar, grado, resultado;
   let contenidoHTML = "";
 
   if (operacion === "suma" || operacion === "resta") {
@@ -539,10 +537,10 @@ export function calcularResultado() {
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
     contenidoHTML += mostrarResultado("Matriz B", matrizB);
   } else if (operacion === "potencia") {
-
     matrizA = obtenerMatrizDesdeDOM("matrizA");
-    const grado = parseInt(document.querySelector("#grado").value);
-
+    grado = parseInt(document.querySelector("#grado").value);
+    console.log("hola", matrizA);
+    
     resultado = potenciaMatriz(matrizA, grado);
 
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
@@ -552,12 +550,12 @@ export function calcularResultado() {
 
     resultado = calcularInversa(matrizA);
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
-  } else if (operacion === "determminante") {
+  } else if (operacion === "determinante") {
 
     matrizA = obtenerMatrizDesdeDOM("matrizA");
 
-    resultado = calcularInversa(matrizA);
-    contenidoHTML += mostrarResultado("Matriz A", matrizA, operacion);
+    resultado = calcularDeterminante(matrizA);
+    contenidoHTML += mostrarResultado("Matriz A", matrizA);
   }
   
 
@@ -593,10 +591,11 @@ function obtenerMatrizDesdeDOM(id) {
 
 // Función para mostrar el resultado en el modal
 function mostrarResultado(titulo, matriz) {
-  if (!matriz) return "";
+  if (!matriz && matriz !== 0) return ""; // <-- permitir mostrar 0
+
   
   if (typeof matriz === "number") {
-    let resultadoFinal = Number.isInteger(matriz)
+    let resultadoFinal = Number.isInteger(matriz) || matriz === 0
       ? matriz
       : decimalAFraccion(matriz);
     return `
@@ -606,7 +605,7 @@ function mostrarResultado(titulo, matriz) {
           <table class='table table-bordered tableover'>
             <tbody>
               <tr><td>${resultadoFinal}</td></tr>
-            </tbody>
+            </tbody> 
           </table>
         </div>
       </div>`;

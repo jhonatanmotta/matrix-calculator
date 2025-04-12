@@ -19,6 +19,12 @@ export function multiplicarMatrices(A, B) {
 }
 
 export function potenciaMatriz(A, n) {
+  console.log(n);
+  console.log(A);
+
+  if (!Array.isArray(A) || !Array.isArray(A[0])) {
+    throw new Error("La matriz A no es válida.");
+}
     if (n === 0) {
         return A.map((fila, i) => fila.map((val, j) => (i === j ? 1 : 0))); // Matriz identidad
     }
@@ -29,12 +35,14 @@ export function potenciaMatriz(A, n) {
     for (let i = 2; i <= n; i++) {
         resultado = multiplicarMatrices(resultado, A);
     }
-    console.log(`Potencia ${n} de la matriz:`, resultado);
     return resultado;
 }
 
 export function calcularDeterminante(matriz) {
     const n = matriz.length;
+    console.log(matriz.length);
+    console.log(matriz);
+    
     if (n === 1) {
         return matriz[0][0];
     }
@@ -54,6 +62,17 @@ export function calcularInversa(matriz) {
   
   const det = calcularDeterminante(matriz);
   if (det === 0) {
+    Swal.fire({
+      icon: "error",
+      toast: true,
+      position: "top-end",
+      title: "Matriz no invertible",
+      text: "Determinante cero",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: "#f8d7da",
+    });
     throw new Error("La matriz no es invertible (determinante cero).");
   }
 
