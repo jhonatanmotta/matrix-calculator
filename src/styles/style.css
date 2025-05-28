@@ -1,0 +1,127 @@
+/* body */
+.containerbody{
+    height: 100vh;
+    width: 100vw;
+    background-color: #000000;
+    color: #ffffff;
+}
+/* forms */
+.tablafc{
+    display: flex;
+    justify-content: space-around;
+    
+}
+.formsumares{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.formsumares input{
+    width: 60px;
+}
+.formescalar{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.formescalar input{
+    width: 60px;
+}
+.formtrans{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.formtrans input{
+    width: 60px;
+}
+
+
+/* modal */
+.title{
+    padding: 10px;
+    text-align: center;
+    background-color: #000000;
+}
+
+.themodal::backdrop{
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.themodal{
+    position: fixed;
+    inset: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    background-color: #241e1e;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    border: none;
+}
+
+.titulo-modal{
+   width: 100%;
+   display: flex;
+   justify-content: space-between;
+   padding: 5px;
+   gap: 10px;
+}	
+  
+
+.footer-modal{
+    display: flex;
+    justify-content: end;
+    padding: 10px;
+    gap: 10px;
+}
+
+.test{
+    color: #ffffff;
+}
+
+.titulo{
+    width: max-content;
+}
+.cerrar-modal{
+    width: max-content;
+}
+
+
+
+/* overflow & flex matrices */
+.tableover{
+    overflow: auto;
+    max-height: 500px;
+    max-width: 500px;
+}
+.body-modal{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 50px;
+}
+
+.overf1 {
+    overflow: auto;
+    max-height: 500px;
+    max-width: 500px;
+}
+.celda{
+    width: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+}
+.overf2 {
+    overflow: auto;
+    max-height: 500px;
+    max-width: 500px;
+}
