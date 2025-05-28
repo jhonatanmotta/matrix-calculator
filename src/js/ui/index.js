@@ -7,13 +7,16 @@ import {
   calcularInversa,
   calcularDeterminante,
   matrizTranspuesta,
-  parseFraccion,
-  decimalAFraccion,
-} from "./operations.js";
+} from "../operations/matrixOperations.js";
+
+import { decimalAFraccion, parseFraccion } from "../utils/fractions.js";
+
+import { titulos } from "../config.js";
+import { resolverSistemaEcuaciones } from "../operations/linearSystems.js";
 
 export function cargarSeccion(seccion) {
   const contenido = document.querySelector("#contenido");
-  
+
   if (seccion === "sumar-restar") {
     contenido.innerHTML = `
         <section>
@@ -223,96 +226,219 @@ export function cargarSeccion(seccion) {
 
         </section>
     `;
+  } else if (seccion === "sistema-ecuaciones") {
+    contenido.innerHTML = `
+      <section>
+        <h2 class="text-center">Sistema de ecuaciones</h2>
+        <label class="text-left" for="numIncognitas">Número de incógnitas:</label>
+        <select id="numIncognitas" class="form-select">
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+        <form id="formSistemaEcuaciones" class="formsumares"></form>
+      </section>
+    `;
   }
 }
 
-export function establecerContenidoMatriz(datos) {
-  let contenido = document.createElement("div"); // Un contenedor para las matrices
-  let matit1 = document.createElement("div"); // Un contenedor para las matriz y titulo 1
-  let matit2 = document.createElement("div"); // Un contenedor para las matriz y titulo 2
-  let overf1 = document.createElement("div"); // Un contenedor para las matriz 1
-  let overf2 = document.createElement("div"); // Un contenedor para las matriz 2
-  
-  contenido.classList.add("body-modal");
-  matit1.classList.add("matit1");
-  matit2.classList.add("matit2");
-  overf1.classList.add("overf1");
-  overf2.classList.add("overf2");
-  contenido.dataset.operacion = datos.operacion;
+export function generarFormularioSistemaEcuaciones(numIncognitas) {
+  const formulario = document.querySelector("#formSistemaEcuaciones");
+  if (!formulario) return;
 
-  if (
-    datos.operacion === "suma" ||
-    datos.operacion === "resta" ||
-    datos.operacion === "multiplicar-matrices"
-  ) {
-    let tituloA = document.createElement("h3");
-    tituloA.classList.add("text-center");
-    tituloA.textContent = "Matriz A";
+  formulario.innerHTML = ""; // Limpia inputs anteriores
 
-    let tituloB = document.createElement("h3");
-    tituloB.classList.add("text-center");
-    tituloB.textContent = "Matriz B";
+  for (let i = 0; i < numIncognitas; i++) {
+    const fila = document.createElement("div");
 
-    matit1.appendChild(tituloA);
-    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matrizA"));
-    matit2.appendChild(tituloB);
-    overf2.appendChild(generarMatriz(datos.filasB, datos.columnasB, "matrizB"));
-    matit1.appendChild(overf1);
-    matit2.appendChild(overf2);
-    
-    contenido.appendChild(matit1);
-    contenido.appendChild(matit2);
-  } else if (
-    datos.operacion === "matriz-transpuesta" ||
-    datos.operacion === "potencia" ||
-    datos.operacion === "inversa" ||
-    datos.operacion === "determinante"
-  ) {
-    let titulo = document.createElement("h3");
-    titulo.textContent = "Matriz";
-    matit1.appendChild(titulo);
-    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matrizA"));
-    matit1.appendChild(overf1);
-    contenido.appendChild(matit1);
-  } else if (datos.operacion === "multiplicar-escalar") {
-    let titulo = document.createElement("h3");
-    titulo.textContent = "Matriz";
-    let escalar = document.createElement("h4");
-    escalar.textContent = `Escalar: ${datos.escalar}`;
-    matit1.appendChild(escalar);
-    matit1.appendChild(titulo);
-    overf1.appendChild(generarMatriz(datos.filasA, datos.columnasA, "matrizA"));
-    matit1.appendChild(overf1);
-    contenido.appendChild(matit1);
-  }
-  
-  if (
-    datos.operacion === "suma" ||
-    datos.operacion === "resta" ||
-    datos.operacion === "multiplicar-matrices" ||
-    datos.operacion === "potencia" ||
-    datos.operacion === "inversa" ||
-    datos.operacion === "determinante"
-  ) {
-    if (validarTamanoMatriz(
-      [datos.filasA, datos.filasB],
-      [datos.columnasA, datos.columnasB],
-      datos.operacion
-    ))
-    {
-      
-      mostrarCuadroDialogo(contenido, datos);
+    for (let j = 0; j < numIncognitas; j++) {
+      const input = document.createElement("input");
+      input.addEventListener("input", () => validarInput(input));
+      fila.appendChild(input);
+      const x = document.createElement("span");
+      x.textContent = `x`;
+      const sub = document.createElement("sub");
+      sub.textContent = `${j + 1}`;
+      x.appendChild(sub);
+      fila.appendChild(x);
     }
+
+    const igual = document.createElement("span");
+    igual.textContent = " = ";
+    fila.appendChild(igual);
+
+    const bInput = document.createElement("input");
+    bInput.type = "number";
+    bInput.addEventListener("input", () => validarInput(bInput));
+    fila.appendChild(bInput);
+
+    formulario.appendChild(fila);
+  }
+  // Crear contenedor para botones
+  const botonesContainer = document.createElement("div");
+  botonesContainer.classList.add("d-flex", "gap-2", "mt-3");
+
+  // Botón calcular (existente)
+  const botonCalcular = document.createElement("button");
+  botonCalcular.type = "submit";
+  botonCalcular.classList.add("btn", "btn-primary");
+  botonCalcular.id = "calcular";
+  botonCalcular.textContent = "Resolver Sistema";
+
+  // Nuevo botón limpiar
+  const botonLimpiar = document.createElement("button");
+  botonLimpiar.type = "button"; // Importante: type="button" para evitar submit
+  botonLimpiar.classList.add("btn", "btn-secondary");
+  botonLimpiar.id = "limpiar";
+  botonLimpiar.textContent = "Limpiar";
+  
+  // Agregar evento al botón limpiar
+  botonLimpiar.addEventListener("click", () => {
+    const inputs = formulario.querySelectorAll("input");
+    inputs.forEach(input => input.value = "");
+  });
+
+  // Agregar botones al contenedor
+  botonesContainer.appendChild(botonCalcular);
+  botonesContainer.appendChild(botonLimpiar);
+  
+  // Agregar contenedor de botones al formulario
+  formulario.appendChild(botonesContainer);
+}
+
+/**
+ * Genera y muestra dinámicamente el contenido del modal con los campos de entrada
+ * para operaciones matriciales (suma, resta, transpuesta, escalar, inversa, etc.).
+ * Según el tipo de operación especificada en `datos.operacion`, crea una o dos matrices
+ * y las inserta en un contenedor modal junto con títulos descriptivos.
+ *
+ * También valida tamaños de matrices cuando es necesario antes de mostrar el resultado.
+ *
+ * @param {Object} datos - Objeto con información necesaria para construir la operación.
+ * @param {string} datos.operacion - Tipo de operación a realizar (e.g. "suma", "inversa").
+ * @param {number} [datos.filasA] - Cantidad de filas de la matriz A.
+ * @param {number} [datos.columnasA] - Cantidad de columnas de la matriz A.
+ * @param {number} [datos.filasB] - Cantidad de filas de la matriz B (si aplica).
+ * @param {number} [datos.columnasB] - Cantidad de columnas de la matriz B (si aplica).
+ * @param {number} [datos.escalar] - Escalar (solo para multiplicación por escalar).
+ */
+export function generateMatrixInputUI(datos) {
+  if (datos.operacion === "sistema-ecuaciones") {
+    let contenido = document.createElement("div");
+    contenido.classList.add("body-modal");
+    let titulo = document.createElement("h3");
+    titulo.textContent = "Matriz respuesta del sistema de ecuaciones";
+    titulo.classList.add("text-center");
+    contenido.appendChild(titulo);
+    showOperationDialog(contenido, datos);
   } else {
-    mostrarCuadroDialogo(contenido, datos);
+    let contenido = document.createElement("div"); // Un contenedor para las matrices
+    let matit1 = document.createElement("div"); // Un contenedor para la matriz y titulo 1
+    let matit2 = document.createElement("div"); // Un contenedor para la matriz y titulo 2
+    let overf1 = document.createElement("div"); // Un contenedor para las matriz 1
+    let overf2 = document.createElement("div"); // Un contenedor para las matriz 2
+
+    contenido.classList.add("body-modal");
+    matit1.classList.add("matit1");
+    matit2.classList.add("matit2");
+    overf1.classList.add("overf1");
+    overf2.classList.add("overf2");
+    contenido.dataset.operacion = datos.operacion;
+
+    if (
+      datos.operacion === "suma" ||
+      datos.operacion === "resta" ||
+      datos.operacion === "multiplicar-matrices"
+    ) {
+      let tituloA = document.createElement("h3");
+      tituloA.classList.add("text-center");
+      tituloA.textContent = "Matriz A";
+
+      let tituloB = document.createElement("h3");
+      tituloB.classList.add("text-center");
+      tituloB.textContent = "Matriz B";
+
+      matit1.appendChild(tituloA);
+      overf1.appendChild(
+        buildMatrixInputTable(datos.filasA, datos.columnasA, "matrizA")
+      );
+      matit2.appendChild(tituloB);
+      overf2.appendChild(
+        buildMatrixInputTable(datos.filasB, datos.columnasB, "matrizB")
+      );
+      matit1.appendChild(overf1);
+      matit2.appendChild(overf2);
+
+      contenido.appendChild(matit1);
+      contenido.appendChild(matit2);
+    } else if (
+      datos.operacion === "matriz-transpuesta" ||
+      datos.operacion === "potencia" ||
+      datos.operacion === "inversa" ||
+      datos.operacion === "determinante"
+    ) {
+      let titulo = document.createElement("h3");
+      titulo.textContent = "Matriz";
+      matit1.appendChild(titulo);
+      overf1.appendChild(
+        buildMatrixInputTable(datos.filasA, datos.columnasA, "matrizA")
+      );
+      matit1.appendChild(overf1);
+      contenido.appendChild(matit1);
+    } else if (datos.operacion === "multiplicar-escalar") {
+      let titulo = document.createElement("h3");
+      titulo.textContent = "Matriz";
+      let escalar = document.createElement("h4");
+      escalar.textContent = `Escalar: ${datos.escalar}`;
+      matit1.appendChild(escalar);
+      matit1.appendChild(titulo);
+      overf1.appendChild(
+        buildMatrixInputTable(datos.filasA, datos.columnasA, "matrizA")
+      );
+      matit1.appendChild(overf1);
+      contenido.appendChild(matit1);
+    }
+
+    if (
+      datos.operacion === "suma" ||
+      datos.operacion === "resta" ||
+      datos.operacion === "multiplicar-matrices" ||
+      datos.operacion === "potencia" ||
+      datos.operacion === "inversa" ||
+      datos.operacion === "determinante"
+    ) {
+      if (
+        validarTamanoMatriz(
+          [datos.filasA, datos.filasB],
+          [datos.columnasA, datos.columnasB],
+          datos.operacion
+        )
+      ) {
+        showOperationDialog(contenido, datos);
+      }
+    } else {
+      showOperationDialog(contenido, datos);
+    }
   }
 }
 
-function generarMatriz(filas, columnas, id) {
+/**
+ * Crea dinámicamente una tabla HTML que representa una matriz de entrada,
+ * con celdas editables y validación integrada para cada input.
+ *
+ * Cada celda contiene un `<input type="text">` que permite al usuario ingresar
+ * valores numéricos o fraccionarios. Los inputs se validan en tiempo real mediante
+ * la función `validarInput()`.
+ *
+ * @param {number} filas - Número de filas de la matriz.
+ * @param {number} columnas - Número de columnas de la matriz.
+ * @param {string} id - ID que se asignará al elemento <table>.
+ * @returns {HTMLTableElement} Un elemento `<table>` HTML con la estructura de la matriz.
+ */
+function buildMatrixInputTable(filas, columnas, id) {
   let tabla = document.createElement("table");
   tabla.id = id;
   tabla.classList.add("matriz");
-  
+
   for (let i = 0; i < filas; i++) {
     let fila = document.createElement("tr");
     fila.classList.add("fila");
@@ -407,7 +533,11 @@ function validarTamanoMatriz(filas, columnas, operacion) {
     }
   }
   // Validar tamaño de matriz para potencia, inversa y determinante
-  if (operacion === "potencia" || operacion === "inversa" || operacion === "determinante") {
+  if (
+    operacion === "potencia" ||
+    operacion === "inversa" ||
+    operacion === "determinante"
+  ) {
     if (filas[0] !== columnas[0]) {
       Swal.fire({
         icon: "error",
@@ -427,27 +557,27 @@ function validarTamanoMatriz(filas, columnas, operacion) {
   }
 }
 
-function mostrarCuadroDialogo(matriz, datos) {
-  const titulos = {
-    "multiplicar-escalar": "Multiplicación por Escalar",
-    "suma": "Suma de Matrices",
-    "resta": "Resta de Matrices",
-    "matriz-transpuesta": "Matriz Transpuesta",
-    "multiplicar-matrices": "Multiplicar Matrices",
-    "potencia": "Potencia de una Matriz",
-    "inversa": "Inversa de una Matriz",
-    "determinante": "Determinante de una Matriz",
-  };
-  // Crear etiqueta <dialog>
+/**
+ * Muestra un cuadro de diálogo modal para que el usuario ingrese las matrices
+ * necesarias según la operación matricial seleccionada (por ejemplo, suma, transpuesta, etc.).
+ *
+ * @param {HTMLElement} matriz - Un elemento HTML (como un formulario o campos de entrada) donde el usuario ingresará los valores de las matrices.
+ * @param {Object} datos - Un objeto que contiene información sobre la operación.
+ * @param {string} datos.operacion - El tipo de operación (por ejemplo, "suma", "inversa", etc.).
+ */
+function showOperationDialog(matriz, datos) {
+
+
   const modal = document.createElement("dialog");
   modal.id = "modal";
   modal.className = "themodal";
   modal.setAttribute("role", "dialog");
   modal.setAttribute("aria-modal", "true");
-  
+
   // Construcción del contenido del modal
   const tituloModal = document.createElement("div");
   tituloModal.className = "titulo-modal";
+  //Encabezado del modal
   tituloModal.innerHTML = `
     <div class="titulo">
         <h3>${titulos[datos.operacion]}</h3>
@@ -456,26 +586,31 @@ function mostrarCuadroDialogo(matriz, datos) {
         <button class="closemodal btn btn-danger">x</button>
     </div>
     `;
-
+    
+  console.log(datos.contenido);
+  
   modal.appendChild(tituloModal);
-  modal.appendChild(matriz);
-  // const bodyModal = document.createElement("div");
-  // bodyModal.id = "body-modal";
-  // bodyModal.appendChild(matriz);
+
+  datos.operacion === "sistema-ecuaciones" ? 
+  // Si datos.contenido es string, conviértelo a nodo
+  typeof datos.contenido === "string" ? (
+    // Agrega todos los nodos hijos generados
+    Array.from((() => {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = datos.contenido;
+      return tempDiv.childNodes;
+    })()).forEach(node => modal.appendChild(node))
+  ) : modal.appendChild(datos.contenido) : modal.appendChild(matriz);
 
   const footerModal = document.createElement("div");
   footerModal.className = "footer-modal";
-  footerModal.innerHTML = `
+  datos.operacion !== "sistema-ecuaciones" ? footerModal.innerHTML = `
         <button id="close-modal" class="btn btn-sm btn-danger">Cerrar</button>
         <button id="calcular" class="btn btn-sm btn-primary">Calcular</button>
-    `;
+    ` : footerModal.innerHTML = `<button id="close-modal" class="btn btn-sm btn-danger">Cerrar</button>`
 
   modal.appendChild(footerModal);
-  // Agregar contenido al modal
 
-  // modal.appendChild(bodyModal);
-
-  // Agregar modal al body
   document.getElementById("contenido").appendChild(modal);
 
   // Asegurar que los eventos de cierre se asignen
@@ -493,11 +628,28 @@ function mostrarCuadroDialogo(matriz, datos) {
   modal.addEventListener("close", () => modal.remove());
 }
 
-export function calcularResultado() {
+/**
+ * Procesa los datos ingresados por el usuario en el modal y calcula el resultado
+ * según la operación seleccionada. Luego actualiza el contenido del modal con la solución.
+ *
+ * Esta función detecta automáticamente la operación activa (suma, inversa, sistema, etc.),
+ * recoge los datos desde el DOM, realiza la operación correspondiente usando funciones matemáticas
+ * y actualiza visualmente el resultado.
+ *
+ * Casos que maneja:
+ * - Suma y resta de matrices
+ * - Multiplicación por escalar
+ * - Matriz transpuesta
+ * - Multiplicación de matrices
+ * - Potencia de matriz
+ * - Inversa y determinante
+ * - Sistemas de ecuaciones (2x2, 3x3) compatibles, indeterminados e incompatibles
+ */
+export function handleCalculation(datos) {
   // Detectar qué operación se está realizando
-  const operacion = document
-    .querySelector(".body-modal")
-    .getAttribute("data-operacion");
+  console.log(datos);
+
+  const operacion = datos.operacion;
 
   let matrizA, matrizB, escalar, grado, resultado;
   let contenidoHTML = "";
@@ -513,8 +665,7 @@ export function calcularResultado() {
 
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
     contenidoHTML += mostrarResultado("Matriz B", matrizB);
-  } 
-  else if (operacion === "multiplicar-escalar") {
+  } else if (operacion === "multiplicar-escalar") {
     escalar = parseFloat(document.querySelector("#escalar").value);
     matrizA = obtenerMatrizDesdeDOM("matrizA");
 
@@ -539,32 +690,52 @@ export function calcularResultado() {
   } else if (operacion === "potencia") {
     matrizA = obtenerMatrizDesdeDOM("matrizA");
     grado = parseInt(document.querySelector("#grado").value);
-    console.log("hola", matrizA);
-    
+
     resultado = potenciaMatriz(matrizA, grado);
 
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
   } else if (operacion === "inversa") {
-
     matrizA = obtenerMatrizDesdeDOM("matrizA");
 
     resultado = calcularInversa(matrizA);
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
   } else if (operacion === "determinante") {
-
     matrizA = obtenerMatrizDesdeDOM("matrizA");
 
     resultado = calcularDeterminante(matrizA);
     contenidoHTML += mostrarResultado("Matriz A", matrizA);
+  } else if (operacion === "sistema-ecuaciones") {
+    // Obtener la matriz de coeficientes y el vector de resultados
+    const matrizCoeficientes = datos.matrizCoeficientes;
+    const vectorResultados = datos.vectorResultados;
+    const { soluciones, tipo } = resolverSistemaEcuaciones(
+      matrizCoeficientes,
+      vectorResultados
+    );
+
+    contenidoHTML += `<h5>Tipo de sistema: ${tipo}</h5>`;
+    if (soluciones) {
+      // <sub>2</sub>
+      soluciones.forEach((valor, idx) => {
+        contenidoHTML += `<div><strong>x<sub>${idx + 1}</sub> = ${valor}</strong></div>`;
+      });
+    } else {
+      tipo === "Sistema incompatible" 
+      ? contenidoHTML += `<div>No tiene soluciones.</div>`
+      : contenidoHTML += `<div>Sus soluciones son infinitas.</div>`
+    }
   }
-  
+
 
   // Agregar tabla de resultado
-  contenidoHTML += mostrarResultado("Resultado", resultado);
+  if (operacion !== "sistema-ecuaciones") {
+    contenidoHTML += mostrarResultado("Resultado", resultado);
+    document.querySelector(".body-modal").innerHTML = contenidoHTML;
+    document.querySelector("#calcular").remove();
+  } else {
+    generateMatrixInputUI({operacion: "sistema-ecuaciones", contenido: contenidoHTML});
+  }
 
-  // Insertar contenido en el modal
-  document.querySelector(".body-modal").innerHTML = contenidoHTML;
-  document.querySelector("#calcular").remove();
 }
 
 // Función para obtener una matriz desde el DOM
@@ -593,11 +764,11 @@ function obtenerMatrizDesdeDOM(id) {
 function mostrarResultado(titulo, matriz) {
   if (!matriz && matriz !== 0) return ""; // <-- permitir mostrar 0
 
-  
   if (typeof matriz === "number") {
-    let resultadoFinal = Number.isInteger(matriz) || matriz === 0
-      ? matriz
-      : decimalAFraccion(matriz);
+    let resultadoFinal =
+      Number.isInteger(matriz) || matriz === 0
+        ? matriz
+        : decimalAFraccion(matriz);
     return `
       <div>
         <h3>${titulo}:</h3>
