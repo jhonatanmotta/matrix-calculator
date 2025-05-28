@@ -28,6 +28,17 @@
     flex-direction: column;
     gap: 10px;
 }
+.formsisec{
+    width: 17%;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    height: 30px;
+}
+
 .formescalar input{
     width: 60px;
 }

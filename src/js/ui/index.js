@@ -229,13 +229,14 @@ export function cargarSeccion(seccion) {
   } else if (seccion === "sistema-ecuaciones") {
     contenido.innerHTML = `
       <section>
-        <h2 class="text-center">Sistema de ecuaciones</h2>
-        <label class="text-left" for="numIncognitas">Número de incógnitas:</label>
-        <select id="numIncognitas" class="form-select">
+      <h2 class="text-center">Sistema de ecuaciones</h2>      
+      <label class="text-center formsisec" for="numIncognitas">Número de incógnitas:</label>
+      <select id="numIncognitas" class="formsisec">
           <option value="2">2</option>
           <option value="3">3</option>
-        </select>
-        <form id="formSistemaEcuaciones" class="formsumares"></form>
+        </select> 
+      <form id="formSistemaEcuaciones" class="formsumares">
+        </form>
       </section>
     `;
   }
@@ -244,17 +245,23 @@ export function cargarSeccion(seccion) {
 export function generarFormularioSistemaEcuaciones(numIncognitas) {
   const formulario = document.querySelector("#formSistemaEcuaciones");
   if (!formulario) return;
+  
 
-  formulario.innerHTML = ""; // Limpia inputs anteriores
+  formulario.innerHTML = ``; // Limpia inputs anteriores
+
 
   for (let i = 0; i < numIncognitas; i++) {
+    
     const fila = document.createElement("div");
+    fila.classList.add("d-flex", "align-items-center", "mb-2");
 
     for (let j = 0; j < numIncognitas; j++) {
       const input = document.createElement("input");
       input.addEventListener("input", () => validarInput(input));
+      input.classList.add("form-control");
       fila.appendChild(input);
       const x = document.createElement("span");
+      x.classList.add("mx-2");
       x.textContent = `x`;
       const sub = document.createElement("sub");
       sub.textContent = `${j + 1}`;
@@ -264,9 +271,11 @@ export function generarFormularioSistemaEcuaciones(numIncognitas) {
 
     const igual = document.createElement("span");
     igual.textContent = " = ";
+    igual.classList.add("mx-1");
     fila.appendChild(igual);
 
     const bInput = document.createElement("input");
+    bInput.classList.add("form-control");
     bInput.type = "number";
     bInput.addEventListener("input", () => validarInput(bInput));
     fila.appendChild(bInput);
@@ -275,7 +284,7 @@ export function generarFormularioSistemaEcuaciones(numIncognitas) {
   }
   // Crear contenedor para botones
   const botonesContainer = document.createElement("div");
-  botonesContainer.classList.add("d-flex", "gap-2", "mt-3");
+  botonesContainer.classList.add("d-flex", "gap-2", "mt-3" );
 
   // Botón calcular (existente)
   const botonCalcular = document.createElement("button");
