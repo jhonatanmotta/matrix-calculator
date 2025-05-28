@@ -235,8 +235,7 @@ export function cargarSeccion(seccion) {
           <option value="2">2</option>
           <option value="3">3</option>
         </select> 
-      <form id="formSistemaEcuaciones" class="formsumares">
-        </form>
+      <form id="formSistemaEcuaciones" class="formsumares"></form>
       </section>
     `;
   }
@@ -247,13 +246,13 @@ export function generarFormularioSistemaEcuaciones(numIncognitas) {
   if (!formulario) return;
   
 
-  formulario.innerHTML = ``; // Limpia inputs anteriores
+  formulario.innerHTML = ""; // Limpia inputs anteriores
 
 
   for (let i = 0; i < numIncognitas; i++) {
     
     const fila = document.createElement("div");
-    fila.classList.add("d-flex", "align-items-center", "mb-2");
+    fila.classList.add("holo");
 
     for (let j = 0; j < numIncognitas; j++) {
       const input = document.createElement("input");

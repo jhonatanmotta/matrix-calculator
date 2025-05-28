@@ -38,6 +38,10 @@
     border-radius: 5px;
     height: 30px;
 }
+.holo{
+    display: flex;
+    gap: 10px;
+}
 
 .formescalar input{
     width: 60px;
